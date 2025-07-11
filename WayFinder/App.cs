@@ -50,7 +50,11 @@ namespace WayFinder
 
         public Result OnShutdown(UIControlledApplication application)
         {
-            throw new NotImplementedException();
+            // ====================== UNSUBSCRIBE FROM EVENTS ========================================================================================
+            _controlledUIApp.ControlledApplication.DocumentOpened -= OnDocumentOpened;
+
+            // ====================== RETURN ==========================================================================================================
+            return Result.Succeeded;
         }
 
     }
