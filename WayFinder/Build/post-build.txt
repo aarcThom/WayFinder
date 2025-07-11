@@ -1,0 +1,7 @@
+if "$(ConfigurationName)" == "Release" (
+    REM Copy the .addin and .dll to the revit directory
+
+    xcopy "$(ProjectDir)Build\WayFinder.addin" "$(ProgramData)\Autodesk\Revit\Addins\2024\" /Y /I
+
+    xcopy "$(TargetPath)" "$(ProgramData)\Autodesk\Revit\Addins\2024\" /Y /I
+)
