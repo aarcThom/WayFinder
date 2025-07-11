@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Media.Imaging;
+using WayFinder.AppSettings;
 
 namespace WayFinder
 {
@@ -20,17 +21,25 @@ namespace WayFinder
         // Instead of creating a new instance each OnDocumentChanged
         private static UIControlledApplication _controlledUIApp;
 
+        private static string _docTitle; // The name of the file that was shut down
+
 
         public Result OnStartup(UIControlledApplication application)
         {
-            _controlledUIApp = application;
+            _controlledUIApp = application; //store the UI App as a class member
+
+
+            // ===================== INITIALIZE SETTINGS ============================================================================================
+            _ = PersistentSettings.Instance;
+
 
             // ===================== SUBSCRIBE TO EVENTS ============================================================================================
-
             try
             {
                 // Subscribe to the DocumentOpened Event
                 _controlledUIApp.ControlledApplication.DocumentOpened += OnDocumentOpened;
+                _controlledUIApp.ControlledApplication.DocumentClosing += OnDocumentClosing;
+                _controlledUIApp.ControlledApplication.DocumentClosed += OnDocumentClosed;
             }
             catch (System.Exception)
             {
@@ -48,10 +57,32 @@ namespace WayFinder
             return;
         }
 
+        /// <summary>
+        /// This method is called just BEFORE a document closes.
+        /// It is cancellable. We use it to get and store the document's info.
+        /// </summary>
+        private void OnDocumentClosing(object sender, DocumentClosingEventArgs args)
+        {
+            // The Document object is still accessible here
+            _docTitle = args.Document.Title;
+        }
+
+
+        private void OnDocumentClosed(object sender, DocumentClosedEventArgs args)
+        {
+            // Check if a document was actually closed (not just the Revit application itself)
+            if (args.DocumentId > -1)
+            {
+                TaskDialog.Show("Document Closed", $"The document '{_docTitle}' has been closed. This action could not be cancelled.");
+            }
+        }
+
         public Result OnShutdown(UIControlledApplication application)
         {
             // ====================== UNSUBSCRIBE FROM EVENTS ========================================================================================
             _controlledUIApp.ControlledApplication.DocumentOpened -= OnDocumentOpened;
+            _controlledUIApp.ControlledApplication.DocumentClosing -= OnDocumentClosing;
+            _controlledUIApp.ControlledApplication.DocumentClosed -= OnDocumentClosed;
 
             // ====================== RETURN ==========================================================================================================
             return Result.Succeeded;

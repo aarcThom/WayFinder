@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -92,11 +93,11 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if "$(ConfigurationName)" == "Release" (
-    REM Copy the .addin and .dll to the revit directory
+    REM Copy the .addin file first
+    xcopy "$(ProjectDir)AddinBuild\SignageHelper.addin" "$(ProgramData)\Autodesk\Revit\Addins\2024\" /Y /I
 
-    xcopy "$(ProjectDir)Build\WayFinder.addin" "$(ProgramData)\Autodesk\Revit\Addins\2024\" /Y /I
-
-    xcopy "$(TargetPath)" "$(ProgramData)\Autodesk\Revit\Addins\2024\" /Y /I
+    REM Copy the entire output folder (dlls and all dependencies)
+    xcopy "$(TargetDir)*.*" "$(ProgramData)\Autodesk\Revit\Addins\2024\" /Y /I /S /E
 )</PostBuildEvent>
   </PropertyGroup>
 </Project>
