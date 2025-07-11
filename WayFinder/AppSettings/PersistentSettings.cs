@@ -63,27 +63,38 @@ namespace WayFinder.AppSettings
         private PersistentSettings()
         {
             _settingsFilePath = GetSettingsFilePath();
-            LoadSettings();
+            if (_settingsFilePath != null)
+            {
+                LoadSettings();
+            }
+            
         }
 
         // =====================================METHODS===========================================================================
 
         /// <summary>
-        /// Updates the settings for a specified model.
+        /// Updates the settings for a specified model by setting its active status.
         /// </summary>
-        /// <remarks>If the <paramref name="modelName"/> is null or empty, the method sets <paramref
-        /// name="errMsg"/> to "Invalid Model Name." and returns <see langword="false"/>.</remarks>
-        /// <param name="modelName">The name of the model to update. Cannot be null or empty.</param>
-        /// <param name="active">A boolean value indicating whether the model should be active.</param>
-        /// <param name="errMsg">A reference to a string that will contain an error message if the operation fails.</param>
+        /// <remarks>This method requires a valid settings file path to function correctly. If the
+        /// settings file path is not set, or if the model name is invalid, the method will display an error message and
+        /// return <see langword="false"/>.</remarks>
+        /// <param name="modelName">The name of the model whose settings are to be updated. Cannot be null or empty.</param>
+        /// <param name="active">A boolean value indicating whether the model should be active. <see langword="true"/> to activate the model;
+        /// otherwise, <see langword="false"/>.</param>
         /// <returns><see langword="true"/> if the settings were successfully updated; otherwise, <see langword="false"/>.</returns>
-        public bool SetSettings(string modelName, bool active, ref string errMsg)
+        public bool SetSettings(string modelName, bool active)
         {
-            errMsg = "";
+            if (_settingsFilePath == null)
+            {
+                TaskDialog.Show("Error", "WayFinder couldn't save this model's settings.\n" +
+                    "Couldn't find settings file.");
+                return false;
+            }
 
             if (modelName == null || modelName == "")
             {
-                errMsg = "Invalid Model Name.";
+                TaskDialog.Show("Error", "WayFinder couldn't save this model's settings.\n" +
+                    "Invalid Model Name.");
                 return false;
             }
 
@@ -148,10 +159,12 @@ namespace WayFinder.AppSettings
         /// <summary>
         /// Retrieves the file path for the settings file used by the application.
         /// </summary>
-        /// <remarks>The settings file is located in the user's local application data folder, under a
-        /// subdirectory named "WayFinder". If the subdirectory does not exist, it is created.</remarks>
-        /// <returns>The full file path to the "settings.json" file within the "WayFinder" subdirectory of the user's local
-        /// application data folder.</returns>
+        /// <remarks>This method constructs the path to the settings file located in the user's local
+        /// application data folder. If the settings directory does not exist, it attempts to create it. If directory
+        /// creation fails, the method returns <see langword="null"/> and displays an error message to the
+        /// user.</remarks>
+        /// <returns>The full file path to the settings file named "settings.json" within the "WayFinder" subdirectory of the
+        /// user's application data folder. Returns <see langword="null"/> if the directory cannot be created.</returns>
         private string GetSettingsFilePath()
         {
             // Get the user's local app data folder
@@ -159,7 +172,19 @@ namespace WayFinder.AppSettings
 
             // Create a subfolder for the plugin
             string settingsFolder = Path.Combine(appDataFolder, "WayFinder");
-            Directory.CreateDirectory(settingsFolder); // create the actual settings folder
+
+            try
+            {
+                Directory.CreateDirectory(settingsFolder); // create the actual settings folder
+            }
+            catch (Exception e)
+            {
+                TaskDialog.Show("Error", "WayFinder couldn't write settings file to \n" +
+                    "C:\\Users\\{your_user_name}\\AppData\\Roaming. Contact your administrator.\n" +
+                    "WayFinder will be able to run. But it won't be able to save your settings.");
+                return null;
+            }
+            
 
             return Path.Combine(settingsFolder, "settings.json");
         }
