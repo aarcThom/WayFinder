@@ -80,7 +80,9 @@ namespace WayFinder
             // Check if a document was actually closed (not just the Revit application itself)
             if (args.DocumentId > -1)
             {
-                TaskDialog.Show("Document Closed", $"The document '{_docTitle}' has been closed. This action could not be cancelled.");
+                // write out the last active setting to the persistent settings
+                bool modelState = ModelSettings.Instance.GetModelState(_docTitle);
+                PersistentSettings.Instance.SetSettings(_docTitle, modelState);
             }
         }
 
