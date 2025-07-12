@@ -31,6 +31,7 @@ namespace WayFinder
 
             // ===================== INITIALIZE SETTINGS ============================================================================================
             _ = PersistentSettings.Instance;
+            _ = ModelSettings.Instance;
 
 
             // ===================== SUBSCRIBE TO EVENTS ============================================================================================
@@ -54,7 +55,11 @@ namespace WayFinder
 
         private void OnDocumentOpened(object sender, DocumentOpenedEventArgs e)
         {
-            return;
+            Document doc = e.Document; // access the document
+            string docTitle = doc.Title;
+
+            // set the model settings from persistent settings, prompt user for persistent settings if none.
+            Events.OnOpenDoc.InitializeModel(docTitle);
         }
 
         /// <summary>
@@ -67,7 +72,9 @@ namespace WayFinder
             _docTitle = args.Document.Title;
         }
 
-
+        /// <summary>
+        /// Handles the event when a document is closed in the application. Happens AFTER doc is closed
+        /// </summary>
         private void OnDocumentClosed(object sender, DocumentClosedEventArgs args)
         {
             // Check if a document was actually closed (not just the Revit application itself)

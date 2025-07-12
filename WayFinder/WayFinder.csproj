@@ -85,6 +85,8 @@
     <Compile Include="App.cs" />
     <Compile Include="AppSettings\ModelSettings.cs" />
     <Compile Include="AppSettings\PersistentSettings.cs" />
+    <Compile Include="Events\OnOpenDoc.cs" />
+    <Compile Include="Helpers\UI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

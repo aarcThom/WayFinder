@@ -44,10 +44,14 @@ namespace WayFinder.AppSettings
 
         private readonly string _settingsFilePath; // the file path of the persistent settings .json file
 
+        private bool _functional = true; // check if the plugin is working correctly
+
 
         // ========================================= PROPERTIES ==================================================================
         // provides the global point of access for the single _instance
         public static PersistentSettings Instance => _instance;
+
+        public bool AppWorking { get => _functional; }
 
         // ===================================== CONSTRUCTORS ====================================================================
 
@@ -66,6 +70,10 @@ namespace WayFinder.AppSettings
             if (_settingsFilePath != null)
             {
                 LoadSettings();
+            }
+            else
+            {
+                _functional = false;
             }
             
         }
