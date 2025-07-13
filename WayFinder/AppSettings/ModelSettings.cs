@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Reactive.Subjects;
 
 
 namespace WayFinder.AppSettings
@@ -23,18 +24,36 @@ namespace WayFinder.AppSettings
         private static readonly ModelSettings _instance = new ModelSettings();
 
 
-        private Dictionary<string, bool> _modelActiveStatus = new Dictionary<string, bool>(); // keeping the state of session open models
-        private Dictionary<string, bool> _modelDebugStatus = new Dictionary<string, bool>(); // keeping the state of session open models
+        private readonly Dictionary<string, bool> _modelActiveStatus = new Dictionary<string, bool>(); // keeping the state of session open models
+        private readonly Dictionary<string, bool> _modelDebugStatus = new Dictionary<string, bool>(); // keeping the state of session open models
 
         private string _focusedModel; // the currently focused model
 
         private bool _focusedActiveState; // the active state of the currently focused model
-        private bool _focusedDebugState; // the debug state of the currently focused model
+
+        // Use a BehaviorSubject to store and broadcast the last value.
+        // It's initialized with the default state (false).
+        private readonly BehaviorSubject<bool> _focuedDebugState = new BehaviorSubject<bool>(false);
 
 
         // ========================================= PROPERTIES ==================================================================
         // provides the global point of access for the single _instance
         public static ModelSettings Instance => _instance;
+
+        // Expose the subject as an IObservable for subscribers.
+        // This prevents subscribers from pushing values into the subject.
+        public IObservable<bool> FocusedDebugState => _focuedDebugState;
+
+        // The property that controls the state.
+        public bool FocusedActive
+        {
+            get => _focuedDebugState.Value;
+            set
+            {
+                // When the value changes, push a notification to all subscribers.
+                _focuedDebugState.OnNext(value);
+            }
+        }
 
         // ===================================== CONSTRUCTORS ====================================================================
 
@@ -81,7 +100,7 @@ namespace WayFinder.AppSettings
         public void SetModelDebugState(string modelName, bool debugState = false)
         {
             _focusedModel = modelName;
-            _focusedDebugState = debugState;
+            FocusedActive = debugState;
 
             _modelDebugStatus[modelName] = debugState;
         }

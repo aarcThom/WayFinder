@@ -44,7 +44,7 @@ namespace WayFinder.AppSettings
 
         private readonly string _settingsFilePath; // the file path of the persistent settings .json file
 
-        private bool _functional = true; // check if the plugin is working correctly
+        private readonly bool _functional = true; // check if the plugin is working correctly
 
 
         // ========================================= PROPERTIES ==================================================================
@@ -187,9 +187,11 @@ namespace WayFinder.AppSettings
             }
             catch (Exception e)
             {
-                TaskDialog.Show("Error", "WayFinder couldn't write settings file to \n" +
+                string msg = "WayFinder couldn't write settings file to \n" +
                     "C:\\Users\\{your_user_name}\\AppData\\Roaming. Contact your administrator.\n" +
-                    "WayFinder will be able to run. But it won't be able to save your settings.");
+                    "WayFinder will be able to run. But it won't be able to save your settings.\n" +
+                    $"{e}";
+                TaskDialog.Show("Error", msg);
                 return null;
             }
             
