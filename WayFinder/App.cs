@@ -28,6 +28,10 @@ namespace WayFinder
         {
             _controlledUIApp = application; //store the UI App as a class member
 
+            string assPath = Assembly.GetExecutingAssembly().Location; // Get the location of Revit
+
+            // ===================== ADD RIBBON PANEL ===============================================================================================
+            Events.OnOpenApp.RibbonPanel(application, assPath);
 
             // ===================== INITIALIZE SETTINGS ============================================================================================
             _ = PersistentSettings.Instance;

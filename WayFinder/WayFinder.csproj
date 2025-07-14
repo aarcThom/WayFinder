@@ -38,11 +38,11 @@
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="RevitAPI">
-      <HintPath>..\..\..\..\..\Program Files\Autodesk\Revit 2024\RevitAPI.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2024\RevitAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="RevitAPIUI">
-      <HintPath>..\..\..\..\..\Program Files\Autodesk\Revit 2024\RevitAPIUI.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2024\RevitAPIUI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -115,7 +115,7 @@
   <PropertyGroup>
     <PostBuildEvent>if "$(ConfigurationName)" == "Release" (
     REM Copy the .addin file first
-    xcopy "$(ProjectDir)AddinBuild\SignageHelper.addin" "$(ProgramData)\Autodesk\Revit\Addins\2024\" /Y /I
+    xcopy "$(ProjectDir)Build\WayFinder.addin" "$(ProgramData)\Autodesk\Revit\Addins\2024\" /Y /I
 
     REM Copy the entire output folder (dlls and all dependencies)
     xcopy "$(TargetDir)*.*" "$(ProgramData)\Autodesk\Revit\Addins\2024\" /Y /I /S /E
