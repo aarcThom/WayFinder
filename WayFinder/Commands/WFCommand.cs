@@ -7,9 +7,7 @@ using OperationCanceledException = Autodesk.Revit.Exceptions.OperationCanceledEx
 
 namespace WayFinder.Commands
 {
-    [Transaction(TransactionMode.Manual)]
-    [Regeneration(RegenerationOption.Manual)]
-    public abstract class WFCommand : IExternalCommand
+   public abstract class WFCommand : IExternalCommand
     {
 
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
@@ -30,7 +28,8 @@ namespace WayFinder.Commands
 
             try
             {
-                return Result.Succeeded; // This is a placeholder. Replace with your command logic.
+                // Implement the specific command logic in the derived class
+                return ExecuteCommand(uiApp, uiDoc, doc, app, ref message, elements);
             }
 
             // This is the specific block that catches the user pressing Esc
@@ -55,5 +54,11 @@ namespace WayFinder.Commands
 
             return result;
         }
+
+        /// <summary>
+        /// This method must be implemented by any class that inherits from CommandBase.
+        /// It contains the specific logic for the command.
+        /// </summary>
+        protected abstract Result ExecuteCommand(UIApplication uiApp, UIDocument uiDoc, Document doc, Application app, ref string message, ElementSet elements);
     }
 }

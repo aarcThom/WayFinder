@@ -94,9 +94,11 @@
     <Compile Include="AppSettings\PersistentSettings.cs" />
     <Compile Include="Commands\ActivateDeactivate.cs" />
     <Compile Include="Commands\WFCommand.cs" />
+    <Compile Include="Events\OnOpenApp.cs" />
     <Compile Include="Events\OnOpenDoc.cs" />
     <Compile Include="Helpers\UI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resources\ResourceUtils.cs" />
     <Compile Include="RevitObjects\WallSign.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -105,6 +107,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Templates\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Icons\updateSign_32.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

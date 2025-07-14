@@ -3,57 +3,40 @@ using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+using WayFinder.AppSettings;
 using OperationCanceledException = Autodesk.Revit.Exceptions.OperationCanceledException;
 
 namespace WayFinder.Commands
 {
     [Transaction(TransactionMode.Manual)]
+
     [Regeneration(RegenerationOption.Manual)]
-    public abstract class ActivateDeactivate : IExternalCommand
+    public class ActivateDeactivate : WFCommand
     {
-
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override Result ExecuteCommand(UIApplication uiApp, UIDocument uiDoc, Document doc, Application app, ref string message, ElementSet elements)
         {
-            // Get the Revit Application
-            UIApplication uiApp = commandData.Application;
+            string docTitle = doc.Title;
 
-            // Get the database of the active document
-            Document doc = uiApp.ActiveUIDocument.Document;
-
-            // Get the active UI document
-            UIDocument uiDoc = uiApp.ActiveUIDocument;
-
-            // Get the active application
-            Application app = doc.Application;
-
-            Result result;
-
-            try
+            if (!ModelSettings.Instance.GetModelDebugState(docTitle))
             {
-                return Result.Succeeded; // This is a placeholder. Replace with your command logic.
+                // If the model is not in debug mode, activate it
+                ModelSettings.Instance.SetModelDebugState(docTitle, true);
+                ModelSettings.Instance.FocusedActive = true; // Set the focused model to active
+            }
+            else
+            {
+                // If the model is already in debug mode, deactivate it
+                ModelSettings.Instance.SetModelDebugState(docTitle, false);
+                ModelSettings.Instance.FocusedActive = false; // Set the focused model to inactive
             }
 
-            // This is the specific block that catches the user pressing Esc
-            catch (OperationCanceledException)
-            {
-                // It's good practice to return "Cancelled" to Revit in this case.
-                result = Result.Cancelled;
-            }
-            // A general catch block for any other unexpected errors
-            catch (Exception ex)
-            {
-                var warningDialog = new TaskDialog("Error");
-                warningDialog.MainIcon = TaskDialogIcon.TaskDialogIconWarning; // Sets the yellow warning icon
-                warningDialog.MainInstruction = "Error:";
-                warningDialog.MainContent = ex.Message;
-                warningDialog.CommonButtons = TaskDialogCommonButtons.Close;
-
-                warningDialog.Show();
-
-                result = Result.Failed;
-            }
-
-            return result;
+            return Result.Succeeded;
         }
     }
 }
