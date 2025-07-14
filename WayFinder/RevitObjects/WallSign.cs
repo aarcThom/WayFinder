@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WayFinder.AppSettings;
 
 namespace WayFinder.RevitObjects
 {
@@ -12,11 +13,15 @@ namespace WayFinder.RevitObjects
 
         private readonly IDisposable _subscription;
 
-        public WallSign(AppSettings.ModelSettings settings)
+        private string _modelName;
+
+        public WallSign(string modelName)
         {
-            _subscription = settings.FocusedDebugState.Subscribe(isActive =>
+            _modelName = modelName;
+            _subscription = ModelSettings.Instance.FocusedDebugState.Subscribe(isActive =>
             {
-                TaskDialog.Show("cool", "The active state changed!");
+                bool state = ModelSettings.Instance.GetModelDebugState(_modelName);
+                TaskDialog.Show("cool", $"The active state is {state}");
             });
         }
 

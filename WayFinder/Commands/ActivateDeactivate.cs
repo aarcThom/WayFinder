@@ -27,13 +27,11 @@ namespace WayFinder.Commands
             {
                 // If the model is not in debug mode, activate it
                 ModelSettings.Instance.SetModelDebugState(docTitle, true);
-                ModelSettings.Instance.FocusedActive = true; // Set the focused model to active
             }
             else
             {
                 // If the model is already in debug mode, deactivate it
                 ModelSettings.Instance.SetModelDebugState(docTitle, false);
-                ModelSettings.Instance.FocusedActive = false; // Set the focused model to inactive
             }
 
             return Result.Succeeded;

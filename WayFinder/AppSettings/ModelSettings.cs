@@ -33,7 +33,7 @@ namespace WayFinder.AppSettings
 
         // Use a BehaviorSubject to store and broadcast the last value.
         // It's initialized with the default state (false).
-        private readonly BehaviorSubject<bool> _focuedDebugState = new BehaviorSubject<bool>(false);
+        private readonly BehaviorSubject<bool> _focusedDebugState = new BehaviorSubject<bool>(false);
 
 
         // ========================================= PROPERTIES ==================================================================
@@ -42,16 +42,16 @@ namespace WayFinder.AppSettings
 
         // Expose the subject as an IObservable for subscribers.
         // This prevents subscribers from pushing values into the subject.
-        public IObservable<bool> FocusedDebugState => _focuedDebugState;
+        public IObservable<bool> FocusedDebugState => _focusedDebugState;
 
         // The property that controls the state.
         public bool FocusedActive
         {
-            get => _focuedDebugState.Value;
+            get => _focusedDebugState.Value;
             set
             {
                 // When the value changes, push a notification to all subscribers.
-                _focuedDebugState.OnNext(value);
+                _focusedDebugState.OnNext(value);
             }
         }
 

@@ -64,6 +64,10 @@ namespace WayFinder
 
             // set the model settings from persistent settings, prompt user for persistent settings if none.
             Events.OnOpenDoc.InitializeModel(docTitle);
+
+
+            //testing the wall class
+            var sign = new RevitObjects.WallSign(docTitle);
         }
 
         /// <summary>
