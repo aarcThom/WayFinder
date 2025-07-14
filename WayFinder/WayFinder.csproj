@@ -92,6 +92,8 @@
     <Compile Include="App.cs" />
     <Compile Include="AppSettings\ModelSettings.cs" />
     <Compile Include="AppSettings\PersistentSettings.cs" />
+    <Compile Include="Commands\ActivateDeactivate.cs" />
+    <Compile Include="Commands\WFCommand.cs" />
     <Compile Include="Events\OnOpenDoc.cs" />
     <Compile Include="Helpers\UI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -100,6 +102,9 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Templates\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
