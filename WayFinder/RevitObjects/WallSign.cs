@@ -1,6 +1,7 @@
 ﻿using Autodesk.Revit.UI;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,27 +9,26 @@ using WayFinder.AppSettings;
 
 namespace WayFinder.RevitObjects
 {
-    public class WallSign : IDisposable
+    public class WallSign
     {
 
-        private readonly IDisposable _subscription;
+        private bool _active; // is bound model currently active
 
-        private string _modelName;
+        public bool Active { get => _active; set => _active = value; }
 
-        public WallSign(string modelName)
+        public WallSign(bool active)
         {
-            _modelName = modelName;
-            _subscription = ModelSettings.Instance.FocusedDebugState.Subscribe(isActive =>
-            {
-                bool state = ModelSettings.Instance.GetModelDebugState(_modelName);
-                TaskDialog.Show("cool", $"The active state is {state}");
-            });
+            _active = active;
         }
 
 
-        public void Dispose()
+        public void SetActiveState (bool state)
         {
-            _subscription?.Dispose();
+            _active = state;
+            TaskDialog.Show("Test", $"This sign's active state is {_active}!");
         }
+
+
+
     }
 }

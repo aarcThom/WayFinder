@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Threading;
 using System.Windows.Media.Imaging;
 using WayFinder.AppSettings;
+using WayFinder.RevitObjects;
 
 namespace WayFinder
 {
@@ -22,6 +23,8 @@ namespace WayFinder
         private static UIControlledApplication _controlledUIApp;
 
         private static string _docTitle; // The name of the file that was shut down
+
+        private static List<SignCollection> _signCollections = new List<SignCollection>(); // contains all the sign collections for all open documents
 
 
         public Result OnStartup(UIControlledApplication application)
@@ -67,7 +70,9 @@ namespace WayFinder
 
 
             //testing the wall class
-            var sign = new RevitObjects.WallSign(docTitle);
+            var signs = new SignCollection(docTitle);
+            signs.AddWallSign(docTitle);
+            _signCollections.Add(signs);
         }
 
         /// <summary>
@@ -85,6 +90,18 @@ namespace WayFinder
         /// </summary>
         private void OnDocumentClosed(object sender, DocumentClosedEventArgs args)
         {
+            // dispose of all the signs / sign collection bound to documents
+            foreach (var signColl in _signCollections)
+            {
+                if (signColl.ModelName == _docTitle)
+                {
+                    signColl.Dispose();
+                }
+            }
+
+            // remove the objects from the signCollections list
+            _signCollections = _signCollections.Where(sc => sc.ModelName != _docTitle).ToList();
+
             // Check if a document was actually closed (not just the Revit application itself)
             if (args.DocumentId > -1)
             {
