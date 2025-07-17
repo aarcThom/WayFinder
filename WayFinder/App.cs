@@ -69,10 +69,9 @@ namespace WayFinder
             // set the model settings from persistent settings, prompt user for persistent settings if none.
             Events.OnOpenDoc.InitializeModel(docTitle);
 
-
             //testing the wall class
-            var signs = new SignCollection(ModelSettings.Instance.);
-            signs.AddWallSign(docTitle);
+            var signs = new SignCollection(ModelSettings.Instance.CurrentModel);
+            signs.AddWallSign();
             _signCollections.Add(signs);
         }
 
@@ -110,7 +109,7 @@ namespace WayFinder
             if (args.DocumentId > -1)
             {
                 // write out the last active setting to the persistent settings
-                bool modelState = ModelSettings.Instance.GetModelState();
+                bool modelState = ModelSettings.Instance.GetModelActiveState();
                 PersistentSettings.Instance.SetSettings(_docTitle, modelState);
             }
         }

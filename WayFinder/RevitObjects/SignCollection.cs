@@ -49,7 +49,7 @@ namespace WayFinder.RevitObjects
         }
 
         // METHODS==================================================================================
-        public void AddWallSign(string modelName)
+        public void AddWallSign()
         {
             _wallSigns.Add(new WallSign(_activeState));
         }

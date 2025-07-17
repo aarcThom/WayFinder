@@ -38,41 +38,15 @@ namespace WayFinder.AppSettings
         // provides the global point of access for the single _instance
         public static ModelSettings Instance => _instance;
 
-
         public string CurrentModel { get => _focusedModel; }
-
 
         // Expose the subject as an IObservable for subscribers.
         // This prevents subscribers from pushing values into the subject.
         public IObservable<bool> FocusedActiveState => _focusedActiveState;
 
-        // The property that controls the active state.
-        public bool FocusedActive
-        {
-            get => _focusedActiveState.Value;
-            set
-            {
-                // When the value changes, push a notification to all subscribers.
-                _focusedActiveState.OnNext(value);
-            }
-        }
-
-
-
         // Expose the subject as an IObservable for subscribers.
         // This prevents subscribers from pushing values into the subject.
         public IObservable<bool> FocusedDebugState => _focusedDebugState;
-
-        // The property that controls the debug state.
-        public bool FocusedDebug
-        {
-            get => _focusedDebugState.Value;
-            set
-            {
-                // When the value changes, push a notification to all subscribers.
-                _focusedDebugState.OnNext(value);
-            }
-        }
 
         // ===================================== CONSTRUCTORS ====================================================================
 
@@ -103,8 +77,8 @@ namespace WayFinder.AppSettings
         {
             // set the new model to current
             _focusedModel = modelName;
-            FocusedActive = activeState;
-            FocusedDebug  = debugState;
+            _focusedActiveState.OnNext(activeState);
+            _focusedDebugState.OnNext(debugState);
 
             // add it to the dictionary
             _openModelsActiveStatuses[_focusedModel] = activeState;
@@ -128,9 +102,32 @@ namespace WayFinder.AppSettings
                 }
 
             _focusedModel = modelName;
-            FocusedDebug = _openModelsDebugStatuses[modelName];
-            FocusedActive = _openModelsActiveStatuses[modelName];
+            _focusedDebugState.OnNext(_openModelsDebugStatuses[modelName]);
+            _focusedActiveState.OnNext(_openModelsActiveStatuses[modelName]);
 
+        }
+
+
+        /// <summary>
+        /// Disposes of the specified model by removing its active and debug statuses.
+        /// </summary>
+        /// <remarks>This method removes the specified model from the active and debug status collections,
+        /// and sets the focused model to null. Ensure that <paramref name="modelName"/> is valid  and exists in the
+        /// collections before calling this method.</remarks>
+        /// <param name="modelName">The name of the model to be disposed. Must not be null or empty.</param>
+        public void DisposeModel(string modelName)
+        {
+            if (_openModelsActiveStatuses.ContainsKey(modelName))
+            {
+                _openModelsActiveStatuses.Remove(modelName);
+            }
+
+            if (_openModelsDebugStatuses.ContainsKey(modelName))
+            {
+                _openModelsDebugStatuses.Remove(modelName);
+            }
+
+            _focusedModel = null;
         }
         
         
@@ -154,18 +151,18 @@ namespace WayFinder.AppSettings
                 TaskDialog.Show("Error", "Current Model doesn't have debug state set.");
                 return false;
             }
-            return _openModelsDebugStatuses[_focusedModel];
+            return _focusedDebugState.Value;
         }
 
 
         /// <summary>
-        /// Sets the debug state for the current model.
+        /// Sets the debug state for the currently focused model.
         /// </summary>
-        /// <remarks>If the current model is not set, an error dialog is displayed and the operation is
+        /// <remarks>If no model is currently focused, an error dialog is displayed and the operation is
         /// aborted.</remarks>
         /// <param name="debugState">A boolean value indicating the desired debug state.  <see langword="true"/> to enable debugging; otherwise,
         /// <see langword="false"/>.</param>
-        public void SetModelDebugState(bool debugState = false)
+        public void SetModelDebugState(bool debugState)
         {
             if (_focusedModel == null)
             {
@@ -173,8 +170,7 @@ namespace WayFinder.AppSettings
                 return;
             }
 
-            FocusedDebug = debugState;
-
+            _focusedDebugState.OnNext(debugState);
             _openModelsDebugStatuses[_focusedModel] = debugState;
         }
 
@@ -185,7 +181,7 @@ namespace WayFinder.AppSettings
         /// <remarks>Displays an error dialog if the focused model is not set or if its active state is
         /// not defined.</remarks>
         /// <returns><see langword="true"/> if the focused model is active; otherwise, <see langword="false"/>.</returns>
-        public bool GetModelState()
+        public bool GetModelActiveState()
         {
             if (_focusedModel == null)
             {
@@ -198,7 +194,7 @@ namespace WayFinder.AppSettings
                 TaskDialog.Show("Error", "Current Model doesn't have active state set.");
                 return false;
             }
-            return _openModelsActiveStatuses[_focusedModel];
+            return _focusedActiveState.Value;
         }
 
         /// <summary>
@@ -216,8 +212,7 @@ namespace WayFinder.AppSettings
                 return;
             }
 
-            _focusedActiveState = activeState;
-
+            _focusedDebugState.OnNext(activeState);
             _openModelsActiveStatuses[_focusedModel] = activeState;
         }
     }
