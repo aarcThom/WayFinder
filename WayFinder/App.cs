@@ -33,13 +33,14 @@ namespace WayFinder
 
             string assPath = Assembly.GetExecutingAssembly().Location; // Get the location of Revit
 
-            // ===================== ADD RIBBON PANEL ===============================================================================================
-            Events.OnOpenApp.RibbonPanel(application, assPath);
-
             // ===================== INITIALIZE SETTINGS ============================================================================================
             _ = PersistentSettings.Instance;
             _ = ModelSettings.Instance;
+            _ = WFButtons.Instance;
+            
 
+            // ===================== ADD RIBBON PANEL ===============================================================================================
+            WFButtons.Instance.GenerateRibbonPanel(_controlledUIApp, assPath);
 
             // ===================== SUBSCRIBE TO EVENTS ============================================================================================
             try
@@ -70,7 +71,7 @@ namespace WayFinder
 
 
             //testing the wall class
-            var signs = new SignCollection(docTitle);
+            var signs = new SignCollection(ModelSettings.Instance.);
             signs.AddWallSign(docTitle);
             _signCollections.Add(signs);
         }
@@ -83,6 +84,9 @@ namespace WayFinder
         {
             // The Document object is still accessible here
             _docTitle = args.Document.Title;
+
+            // Set the document to active
+            ModelSettings.Instance.SetCurrentModel(_docTitle);
         }
 
         /// <summary>
@@ -106,7 +110,7 @@ namespace WayFinder
             if (args.DocumentId > -1)
             {
                 // write out the last active setting to the persistent settings
-                bool modelState = ModelSettings.Instance.GetModelState(_docTitle);
+                bool modelState = ModelSettings.Instance.GetModelState();
                 PersistentSettings.Instance.SetSettings(_docTitle, modelState);
             }
         }

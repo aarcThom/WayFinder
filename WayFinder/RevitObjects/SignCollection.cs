@@ -33,7 +33,7 @@ namespace WayFinder.RevitObjects
             // subscribe to the model state
             _subscription = ModelSettings.Instance.FocusedDebugState.Subscribe(isActive =>
             {
-                _activeState = ModelSettings.Instance.GetModelDebugState(_modelName);
+                _activeState = ModelSettings.Instance.GetModelDebugState();
 
 
                 // update the wall signs' state

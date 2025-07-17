@@ -92,7 +92,9 @@
     <Compile Include="App.cs" />
     <Compile Include="AppSettings\ModelSettings.cs" />
     <Compile Include="AppSettings\PersistentSettings.cs" />
+    <Compile Include="AppSettings\WFButtons.cs" />
     <Compile Include="Commands\ActivateDeactivate.cs" />
+    <Compile Include="Commands\UpdateSignInfo.cs" />
     <Compile Include="Commands\WFCommand.cs" />
     <Compile Include="Events\OnOpenApp.cs" />
     <Compile Include="Events\OnOpenDoc.cs" />

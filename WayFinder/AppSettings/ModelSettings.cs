@@ -24,15 +24,13 @@ namespace WayFinder.AppSettings
         private static readonly ModelSettings _instance = new ModelSettings();
 
 
-        private readonly Dictionary<string, bool> _modelActiveStatus = new Dictionary<string, bool>(); // keeping the state of session open models
-        private readonly Dictionary<string, bool> _modelDebugStatus = new Dictionary<string, bool>(); // keeping the state of session open models
+        // keeping track of the currently open models
+        private readonly Dictionary<string, bool> _openModelsActiveStatuses = new Dictionary<string, bool>();
+        private readonly Dictionary<string, bool> _openModelsDebugStatuses = new Dictionary<string, bool>();
 
-        private string _focusedModel; // the currently focused model
-
-        private bool _focusedActiveState; // the active state of the currently focused model
-
-        // Use a BehaviorSubject to store and broadcast the last value.
-        // It's initialized with the default state (false).
+        // the currently focused model and its active and debug states
+        private string _focusedModel = null; 
+        private readonly BehaviorSubject<bool> _focusedActiveState = new BehaviorSubject<bool>(false);
         private readonly BehaviorSubject<bool> _focusedDebugState = new BehaviorSubject<bool>(false);
 
 
@@ -40,12 +38,33 @@ namespace WayFinder.AppSettings
         // provides the global point of access for the single _instance
         public static ModelSettings Instance => _instance;
 
+
+        public string CurrentModel { get => _focusedModel; }
+
+
+        // Expose the subject as an IObservable for subscribers.
+        // This prevents subscribers from pushing values into the subject.
+        public IObservable<bool> FocusedActiveState => _focusedActiveState;
+
+        // The property that controls the active state.
+        public bool FocusedActive
+        {
+            get => _focusedActiveState.Value;
+            set
+            {
+                // When the value changes, push a notification to all subscribers.
+                _focusedActiveState.OnNext(value);
+            }
+        }
+
+
+
         // Expose the subject as an IObservable for subscribers.
         // This prevents subscribers from pushing values into the subject.
         public IObservable<bool> FocusedDebugState => _focusedDebugState;
 
-        // The property that controls the state.
-        public bool FocusedActive
+        // The property that controls the debug state.
+        public bool FocusedDebug
         {
             get => _focusedDebugState.Value;
             set
@@ -73,70 +92,133 @@ namespace WayFinder.AppSettings
         // =====================================METHODS===========================================================================
         
         /// <summary>
-        /// Determines whether the specified model is in debug mode.
+        /// Initializes the model with the specified name and sets its active and debug states.
         /// </summary>
-        /// <remarks>If the specified model name does not exist in the debug status dictionary, the method
-        /// returns <see langword="false"/>.</remarks>
-        /// <param name="modelName">The name of the model to check for debug status. Cannot be null or empty.</param>
-        /// <returns><see langword="true"/> if the model is in debug mode; otherwise, <see langword="false"/>.</returns>
-        public bool GetModelDebugState(string modelName)
+        /// <remarks>This method sets the specified model as the current focused model and updates its
+        /// active and debug states in the internal tracking dictionaries.</remarks>
+        /// <param name="modelName">The name of the model to initialize. Cannot be null or empty.</param>
+        /// <param name="activeState">A <see langword="true"/> to set the model as active; otherwise, <see langword="false"/>.</param>
+        /// <param name="debugState">A <see langword="true"/> to enable debug mode for the model; otherwise, <see langword="false"/>.</param>
+        public void InitializeModel(string modelName, bool activeState, bool debugState)
         {
-            if (!_modelDebugStatus.ContainsKey(modelName))
-            {
-                return false;
-            }
-            return _modelDebugStatus[modelName];
-        }
-
-
-        /// <summary>
-        /// Sets the debug state for a specified model.
-        /// </summary>
-        /// <remarks>This method updates the internal debug status for the specified model, allowing for
-        /// model-specific debugging control.</remarks>
-        /// <param name="modelName">The name of the model for which to set the debug state. Cannot be null or empty.</param>
-        /// <param name="debugState">The debug state to set for the model. <see langword="true"/> to enable debugging; otherwise, <see
-        /// langword="false"/>. Defaults to <see langword="false"/>.</param>
-        public void SetModelDebugState(string modelName, bool debugState = false)
-        {
+            // set the new model to current
             _focusedModel = modelName;
-            FocusedActive = debugState;
+            FocusedActive = activeState;
+            FocusedDebug  = debugState;
 
-            _modelDebugStatus[modelName] = debugState;
+            // add it to the dictionary
+            _openModelsActiveStatuses[_focusedModel] = activeState;
+            _openModelsDebugStatuses[_focusedModel] = debugState;
         }
 
-
         /// <summary>
-        /// Determines whether the specified model is in an active state.
+        /// Sets the current model to the specified model name.
         /// </summary>
-        /// <remarks>If the specified model name does not exist in the current context, the method returns
-        /// <see langword="false"/>.</remarks>
-        /// <param name="modelName">The name of the model to check.</param>
-        /// <returns><see langword="true"/> if the model is in an active state; otherwise, <see langword="false"/>.</returns>
-        public bool GetModelState(string modelName)
+        /// <remarks>This method updates the focused model and its associated debug and active statuses. 
+        /// If the specified model name is not registered, an error dialog is displayed and the operation is
+        /// aborted.</remarks>
+        /// <param name="modelName">The name of the model to set as the current model. Must be a registered model name.</param>
+        public void SetCurrentModel(string modelName)
         {
+            if (!_openModelsActiveStatuses.ContainsKey(modelName) ||
+                !_openModelsDebugStatuses.ContainsKey(modelName))
+                {
+                TaskDialog.Show("Error", "The open model is not registered by Way Finder.");
+                return;
+                }
 
-            if (!_modelActiveStatus.ContainsKey(modelName))
+            _focusedModel = modelName;
+            FocusedDebug = _openModelsDebugStatuses[modelName];
+            FocusedActive = _openModelsActiveStatuses[modelName];
+
+        }
+        
+        
+        /// <summary>
+        /// Determines whether the current model has a debug state set and retrieves its status.
+        /// </summary>
+        /// <remarks>Displays an error message if the current model is not set or if the debug state is
+        /// not available.</remarks>
+        /// <returns><see langword="true"/> if the current model has a debug state set and it is active; otherwise, <see
+        /// langword="false"/>.</returns>
+        public bool GetModelDebugState()
+        {
+            if (_focusedModel == null)
             {
+                TaskDialog.Show("Error", "Current Model not set.");
                 return false;
             }
-            return _modelActiveStatus[modelName];
+
+            if (!_openModelsDebugStatuses.ContainsKey(_focusedModel))
+            {
+                TaskDialog.Show("Error", "Current Model doesn't have debug state set.");
+                return false;
+            }
+            return _openModelsDebugStatuses[_focusedModel];
+        }
+
+
+        /// <summary>
+        /// Sets the debug state for the current model.
+        /// </summary>
+        /// <remarks>If the current model is not set, an error dialog is displayed and the operation is
+        /// aborted.</remarks>
+        /// <param name="debugState">A boolean value indicating the desired debug state.  <see langword="true"/> to enable debugging; otherwise,
+        /// <see langword="false"/>.</param>
+        public void SetModelDebugState(bool debugState = false)
+        {
+            if (_focusedModel == null)
+            {
+                TaskDialog.Show("Error", "Current model not set.");
+                return;
+            }
+
+            FocusedDebug = debugState;
+
+            _openModelsDebugStatuses[_focusedModel] = debugState;
+        }
+
+
+        /// <summary>
+        /// Determines whether the currently focused model is in an active state.
+        /// </summary>
+        /// <remarks>Displays an error dialog if the focused model is not set or if its active state is
+        /// not defined.</remarks>
+        /// <returns><see langword="true"/> if the focused model is active; otherwise, <see langword="false"/>.</returns>
+        public bool GetModelState()
+        {
+            if (_focusedModel == null)
+            {
+                TaskDialog.Show("Error", "Current Model not set.");
+                return false;
+            }
+
+            if (!_openModelsActiveStatuses.ContainsKey(_focusedModel))
+            {
+                TaskDialog.Show("Error", "Current Model doesn't have active state set.");
+                return false;
+            }
+            return _openModelsActiveStatuses[_focusedModel];
         }
 
         /// <summary>
-        /// Sets the specified model as the focused model and updates its active state.
+        /// Sets the active state of the currently focused model.
         /// </summary>
-        /// <remarks>This method updates the internal state to reflect the specified model as the focused
-        /// model and adjusts its active status accordingly.</remarks>
-        /// <param name="modelName">The name of the model to be set as focused. Cannot be null or empty.</param>
-        /// <param name="activeState">A boolean value indicating whether the model is active. <see langword="true"/> if the model is active;
+        /// <remarks>If no model is currently focused, an error dialog is displayed and the operation is
+        /// aborted.</remarks>
+        /// <param name="activeState">A boolean value indicating the desired active state.  <see langword="true"/> to activate the model;
         /// otherwise, <see langword="false"/>.</param>
-        public void SetModelState(string modelName, bool activeState)
+        public void SetModelActiveState(bool activeState)
         {
-            _focusedModel = modelName;
+            if (_focusedModel == null)
+            {
+                TaskDialog.Show("Error", "Current model not set.");
+                return;
+            }
+
             _focusedActiveState = activeState;
 
-            _modelActiveStatus[modelName] = activeState;
+            _openModelsActiveStatuses[_focusedModel] = activeState;
         }
     }
 }

@@ -34,11 +34,17 @@ namespace WayFinder.Events
                 docSavedSettings = updatedSetting;
             }
 
-            // set the current model state - THIS ALSO FOCUSES THE CURRENT MODEL
-            ModelSettings.Instance.SetModelState(modelName, docSavedSettings.Value);
+            // focus the current model
+            ModelSettings.Instance.SetCurrentModel(modelName);
+
+            // set the current active state for the model
+            ModelSettings.Instance.SetModelActiveState(docSavedSettings.Value);
+
+            // set the active state for the buttons
+            WFButtons.Instance.ActivateDeactivateButtons(docSavedSettings.Value);
 
             //set debug state to false to start
-            ModelSettings.Instance.SetModelDebugState(modelName);
+            ModelSettings.Instance.SetModelDebugState();
         }
 
         private static bool AddModelToSettings(string modelName)
