@@ -119,9 +119,12 @@
     <PostBuildEvent>if "$(ConfigurationName)" == "Release" (
     REM Copy the .addin file first
     xcopy "$(ProjectDir)Build\WayFinder.addin" "$(ProgramData)\Autodesk\Revit\Addins\2024\" /Y /I
+    
+    REM Create the plugin folder if it doesn't exist
+    if not exist "$(ProgramData)\Autodesk\Revit\Addins\2024\WayFinder\" mkdir "$(ProgramData)\Autodesk\Revit\Addins\2024\WayFinder\"
 
     REM Copy the entire output folder (dlls and all dependencies)
-    xcopy "$(TargetDir)*.*" "$(ProgramData)\Autodesk\Revit\Addins\2024\" /Y /I /S /E
+    xcopy "$(TargetDir)*.*" "$(ProgramData)\Autodesk\Revit\Addins\2024\WayFinder" /Y /I /S /E
 )</PostBuildEvent>
   </PropertyGroup>
 </Project>

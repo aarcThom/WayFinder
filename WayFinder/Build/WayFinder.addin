@@ -6,7 +6,7 @@
 		<Text>Way Finder</Text>
 		<Description>Commands to assist with signage schedules.</Description>
 		<VisibilityMode>AlwaysVisible</VisibilityMode>
-		<Assembly>WayFinder.dll</Assembly>
+		<Assembly>WayFinder/WayFinder.dll</Assembly>
 		<AddInId>76DB3F92-7B57-41AB-A278-48FBCE023321</AddInId>
 		<VendorId>AARC</VendorId>
 		<VendorDescription>aarc.io</VendorDescription>
