@@ -8,7 +8,7 @@ using WayFinder.AppSettings;
 
 namespace WayFinder.RevitObjects
 {
-    public class SignCollection : IDisposable
+    public class ModelSigns : IDisposable
     {
         // FIELDS==================================================================================
 
@@ -26,7 +26,7 @@ namespace WayFinder.RevitObjects
 
 
         // CONSTRUCTOR==============================================================================
-        public SignCollection(string modelName)
+        public ModelSigns(string modelName)
         {
             _modelName = modelName;
 

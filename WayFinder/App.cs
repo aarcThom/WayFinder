@@ -24,7 +24,7 @@ namespace WayFinder
 
         private static string _docTitle; // The name of the file that was shut down
 
-        private static List<SignCollection> _signCollections = new List<SignCollection>(); // contains all the sign collections for all open documents
+        private static List<ModelSigns> _signCollections = new List<ModelSigns>(); // contains all the sign collections for all open documents
 
 
         public Result OnStartup(UIControlledApplication application)
@@ -70,7 +70,7 @@ namespace WayFinder
             Events.OnOpenDoc.InitializeModel(docTitle);
 
             //testing the wall class
-            var signs = new SignCollection(ModelSettings.Instance.CurrentModel);
+            var signs = new ModelSigns(ModelSettings.Instance.CurrentModel);
             signs.AddWallSign();
             _signCollections.Add(signs);
         }
@@ -93,24 +93,28 @@ namespace WayFinder
         /// </summary>
         private void OnDocumentClosed(object sender, DocumentClosedEventArgs args)
         {
-            // dispose of all the signs / sign collection bound to documents
-            foreach (var signColl in _signCollections)
-            {
-                if (signColl.ModelName == _docTitle)
-                {
-                    signColl.Dispose();
-                }
-            }
-
-            // remove the objects from the signCollections list
-            _signCollections = _signCollections.Where(sc => sc.ModelName != _docTitle).ToList();
-
             // Check if a document was actually closed (not just the Revit application itself)
             if (args.DocumentId > -1)
             {
+
+                // dispose of all the signs / sign collection bound to documents
+                foreach (var signColl in _signCollections)
+                {
+                    if (signColl.ModelName == _docTitle)
+                    {
+                        signColl.Dispose();
+                    }
+                }
+
+                // remove the objects from the signCollections list
+                _signCollections = _signCollections.Where(sc => sc.ModelName != _docTitle).ToList();
+
                 // write out the last active setting to the persistent settings
                 bool modelState = ModelSettings.Instance.GetModelActiveState();
                 PersistentSettings.Instance.SetSettings(_docTitle, modelState);
+
+                // remove the model from the model settings
+                ModelSettings.Instance.DisposeModel(_docTitle);
             }
         }
 

@@ -36,7 +36,16 @@ namespace WayFinder.AppSettings
 
         // ========================================= PROPERTIES ==================================================================
         // provides the global point of access for the single _instance
+
+
+
         public static ModelSettings Instance => _instance;
+
+        /*
+ *  YOU NEED TO MAKE THE CURRENT MODEL AND IOBSERVABLE
+ *  
+ *  /
+ */
 
         public string CurrentModel { get => _focusedModel; }
 
