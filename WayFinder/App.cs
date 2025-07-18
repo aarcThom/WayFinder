@@ -70,7 +70,7 @@ namespace WayFinder
             Events.OnOpenDoc.InitializeModel(docTitle);
 
             //testing the wall class
-            var signs = new ModelSigns(ModelSettings.Instance.CurrentModel);
+            var signs = new ModelSigns(ModelSettings.Instance.ActiveModel);
             signs.AddWallSign();
             _signCollections.Add(signs);
         }
