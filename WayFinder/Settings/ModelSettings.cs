@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Reactive.Subjects;
 
 
-namespace WayFinder.AppSettings
+namespace WayFinder.Settings
 {
 
     public sealed class ModelSettings

@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace WayFinder.AppSettings
+namespace WayFinder.Settings
 {
     /// <summary>
     /// Provides a singleton instance for managing persistent application settings related to project configurations.

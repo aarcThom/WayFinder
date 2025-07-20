@@ -7,10 +7,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Subjects;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Media.Imaging;
-using WayFinder.AppSettings;
+using WayFinder.Settings;
 using WayFinder.RevitObjects;
 
 namespace WayFinder
@@ -22,9 +23,8 @@ namespace WayFinder
         // Instead of creating a new instance each OnDocumentChanged
         private static UIControlledApplication _controlledUIApp;
 
-        private static string _docTitle; // The name of the file that was shut down
-
-        private static List<ModelSigns> _signCollections = new List<ModelSigns>(); // contains all the sign collections for all open documents
+        private static readonly BehaviorSubject<string> _focusedModel = new BehaviorSubject<string>(null); // the current model
+        public static IObservable<string> FocusedModel => _focusedModel; // allows behaviour to be subscribed to
 
 
         public Result OnStartup(UIControlledApplication application)
@@ -35,20 +35,19 @@ namespace WayFinder
 
             // ===================== INITIALIZE SETTINGS ============================================================================================
             _ = PersistentSettings.Instance;
-            _ = ModelSettings.Instance;
+            _ = AppSettings.Instance;
             _ = WFButtons.Instance;
-            
-
             // ===================== ADD RIBBON PANEL ===============================================================================================
             WFButtons.Instance.GenerateRibbonPanel(_controlledUIApp, assPath);
 
             // ===================== SUBSCRIBE TO EVENTS ============================================================================================
             try
             {
-                // Subscribe to the DocumentOpened Event
+                // Subscribe to Events
                 _controlledUIApp.ControlledApplication.DocumentOpened += OnDocumentOpened;
                 _controlledUIApp.ControlledApplication.DocumentClosing += OnDocumentClosing;
                 _controlledUIApp.ControlledApplication.DocumentClosed += OnDocumentClosed;
+                _controlledUIApp.ViewActivated += OnViewActivated;
             }
             catch (System.Exception)
             {
@@ -63,16 +62,16 @@ namespace WayFinder
 
         private void OnDocumentOpened(object sender, DocumentOpenedEventArgs e)
         {
-            Document doc = e.Document; // access the document
-            string docTitle = doc.Title;
 
-            // set the model settings from persistent settings, prompt user for persistent settings if none.
-            Events.OnOpenDoc.InitializeModel(docTitle);
+        }
 
-            //testing the wall class
-            var signs = new ModelSigns(ModelSettings.Instance.ActiveModel);
-            signs.AddWallSign();
-            _signCollections.Add(signs);
+        private void OnViewActivated(object sender, ViewActivatedEventArgs e)
+        {
+            // Handle the view activated event
+            Document doc = e.Document;
+            _focusedModel.OnNext(doc.Title);
+
+            AppSettings.Instance.test();
         }
 
         /// <summary>
@@ -81,11 +80,19 @@ namespace WayFinder
         /// </summary>
         private void OnDocumentClosing(object sender, DocumentClosingEventArgs args)
         {
-            // The Document object is still accessible here
-            _docTitle = args.Document.Title;
+            //grab the currently open model just in case user closes without switching tabs
+            string prevFocus = _focusedModel.Value;
 
-            // Set the document to active
-            ModelSettings.Instance.SetCurrentModel(_docTitle);
+            _focusedModel.OnNext(args.Document.Title); // Set the document to active
+            AppSettings.Instance.test(); // replace this with the dispose methods
+
+            // reset the current model if user closed model without switching tabs
+            if (prevFocus != _focusedModel.Value)
+            {
+                _focusedModel.OnNext(prevFocus);
+                AppSettings.Instance.test();
+            }
+
         }
 
         /// <summary>
@@ -93,29 +100,7 @@ namespace WayFinder
         /// </summary>
         private void OnDocumentClosed(object sender, DocumentClosedEventArgs args)
         {
-            // Check if a document was actually closed (not just the Revit application itself)
-            if (args.DocumentId > -1)
-            {
 
-                // dispose of all the signs / sign collection bound to documents
-                foreach (var signColl in _signCollections)
-                {
-                    if (signColl.ModelName == _docTitle)
-                    {
-                        signColl.Dispose();
-                    }
-                }
-
-                // remove the objects from the signCollections list
-                _signCollections = _signCollections.Where(sc => sc.ModelName != _docTitle).ToList();
-
-                // write out the last active setting to the persistent settings
-                bool modelState = ModelSettings.Instance.GetModelActiveState();
-                PersistentSettings.Instance.SetSettings(_docTitle, modelState);
-
-                // remove the model from the model settings
-                ModelSettings.Instance.DisposeModel(_docTitle);
-            }
         }
 
         public Result OnShutdown(UIControlledApplication application)
@@ -128,6 +113,5 @@ namespace WayFinder
             // ====================== RETURN ==========================================================================================================
             return Result.Succeeded;
         }
-
     }
 }

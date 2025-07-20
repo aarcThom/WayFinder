@@ -10,7 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Media.Imaging;
-using WayFinder.AppSettings;
+using WayFinder.Settings;
 
 
 namespace WayFinder.Events

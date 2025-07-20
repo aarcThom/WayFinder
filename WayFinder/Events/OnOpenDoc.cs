@@ -1,4 +1,4 @@
-﻿using WayFinder.AppSettings;
+﻿using WayFinder.Settings;
 
 namespace WayFinder.Events
 {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 
-namespace WayFinder.AppSettings
+namespace WayFinder.Settings
 {
 
     public sealed class WFButtons

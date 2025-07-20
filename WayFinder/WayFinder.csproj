@@ -90,10 +90,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
-    <Compile Include="AppSettings\AppSigns.cs" />
-    <Compile Include="AppSettings\ModelSettings.cs" />
-    <Compile Include="AppSettings\PersistentSettings.cs" />
-    <Compile Include="AppSettings\WFButtons.cs" />
+    <Compile Include="Settings\AppSettings.cs" />
+    <Compile Include="Settings\ModelSettings.cs" />
+    <Compile Include="Settings\PersistentSettings.cs" />
+    <Compile Include="Settings\WFButtons.cs" />
     <Compile Include="Commands\ActivateDeactivate.cs" />
     <Compile Include="Commands\UpdateSignInfo.cs" />
     <Compile Include="Commands\WFCommand.cs" />

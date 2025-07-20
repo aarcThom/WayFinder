@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using WayFinder.AppSettings;
+using WayFinder.Settings;
 using OperationCanceledException = Autodesk.Revit.Exceptions.OperationCanceledException;
 
 namespace WayFinder.Commands
