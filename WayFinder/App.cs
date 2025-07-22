@@ -69,7 +69,7 @@ namespace WayFinder
         {
             // Handle the view activated event
             Document doc = e.Document;
-            _focusedModel.OnNext(doc.Title);
+            SetCurrentModel(model:doc);
 
             AppSettings.Instance.test();
         }
@@ -83,13 +83,13 @@ namespace WayFinder
             //grab the currently open model just in case user closes without switching tabs
             string prevFocus = _focusedModel.Value;
 
-            _focusedModel.OnNext(args.Document.Title); // Set the document to active
+            SetCurrentModel(model:args.Document); // Set the document to active
             AppSettings.Instance.test(); // replace this with the dispose methods
 
             // reset the current model if user closed model without switching tabs
             if (prevFocus != _focusedModel.Value)
             {
-                _focusedModel.OnNext(prevFocus);
+                SetCurrentModel(modelName:prevFocus);
                 AppSettings.Instance.test();
             }
 
@@ -112,6 +112,38 @@ namespace WayFinder
 
             // ====================== RETURN ==========================================================================================================
             return Result.Succeeded;
+        }
+
+
+        // ================================== HELPER FUNCTIONS ========================================================================================
+
+        /// <summary>
+        /// Sets the current model by updating the focused model's title.
+        /// </summary>
+        /// <remarks>If both <paramref name="modelName"/> and <paramref name="model"/> are provided, the
+        /// method prioritizes the <paramref name="model"/> parameter.</remarks>
+        /// <param name="modelName">The name of the model to set as the current model. If <paramref name="model"/> is provided, this parameter
+        /// is ignored.</param>
+        /// <param name="model">The <see cref="Document"/> object representing the model to set as the current model. If the model is a
+        /// family document, the operation is aborted.</param>
+        private void SetCurrentModel(string modelName = null, Document model = null)
+        {
+            if (model != null && model.IsFamilyDocument)
+            {
+                return;
+            }
+
+            if (model != null)
+            {
+                _focusedModel.OnNext(model.Title);
+                return;
+            }
+
+            if (modelName != null)
+            {
+                _focusedModel.OnNext(modelName);
+            }
+            
         }
     }
 }

@@ -26,7 +26,8 @@ namespace WayFinder.RevitObjects
         // CONSTRUCTOR==============================================================================
         public ModelSigns(string modelName)
         {
-            
+            _modelName = modelName;
+            _activeState = true;
         }
 
         // METHODS==================================================================================

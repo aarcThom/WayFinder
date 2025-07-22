@@ -23,16 +23,6 @@ namespace WayFinder.Commands
         {
             string docTitle = doc.Title;
 
-            if (!ModelSettings.Instance.GetModelDebugState())
-            {
-                // If the model is not in debug mode, activate it
-                ModelSettings.Instance.SetModelDebugState(true);
-            }
-            else
-            {
-                // If the model is already in debug mode, deactivate it
-                ModelSettings.Instance.SetModelDebugState(false);
-            }
 
             return Result.Succeeded;
         }

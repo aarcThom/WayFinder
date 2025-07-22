@@ -25,14 +25,17 @@ namespace WayFinder.Settings
         private static readonly AppSettings _instance = new AppSettings();
 
         private readonly IDisposable _focusedModelSubscribe; // the subscription to the ModelSettings
-        private string _focusedModel; // the currently focused model
+        private string _currentModel; // the currently focused model
 
-
-
+        // the dictionary that holds all the model settings
+        private Dictionary<string, CurrentModel> _openModels = new Dictionary<string, CurrentModel>();
 
         // ========================================= PROPERTIES ==================================================================
         // provides the global point of access for the single _instance
         public static AppSettings Instance => _instance;
+
+        // retrieves the model settings of the currently focused model
+        public CurrentModel CurrentModel => _openModels[_currentModel];
 
         // ===================================== CONSTRUCTORS ====================================================================
 
@@ -50,13 +53,41 @@ namespace WayFinder.Settings
             // subscribe to the currently focused model
             _focusedModelSubscribe = App.FocusedModel.Subscribe(currentModel =>
             {
-                _focusedModel = currentModel;
+                _currentModel = currentModel;
+
+                if (_currentModel != null && !_openModels.ContainsKey(_currentModel))
+                {
+                    _openModels[_currentModel] = new CurrentModel();
+                }
             });
+        }
+
+        // ===================================== METHODS ===========================================================================
+        
+        /// <summary>
+        /// Removes the model with the specified name from the collection.
+        /// </summary>
+        /// <remarks>If the model with the specified name exists in the collection, it is removed.  Ensure
+        /// that any resources associated with the model are properly disposed of before calling this method.</remarks>
+        /// <param name="modelName">The name of the model to remove. Must not be null or empty.</param>
+        public void RemoveModel(string modelName)
+        {
+            if (_openModels.ContainsKey(modelName))
+            {
+                // WILL NEED TO ENSURE THINGS ARE PROPERLY DISPOSED.
+                _openModels.Remove(modelName);
+            }
         }
 
         public void test()
         {
-            TaskDialog.Show("cool", $"The current model is {_focusedModel}");
+            string test = "";
+            foreach(string key in _openModels.Keys)
+            {
+                test += $"{key}, ";
+            }
+
+            TaskDialog.Show("cool", $"Models: {test}");
         }
     }
 }

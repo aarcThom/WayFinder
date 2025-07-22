@@ -91,7 +91,7 @@
   <ItemGroup>
     <Compile Include="App.cs" />
     <Compile Include="Settings\AppSettings.cs" />
-    <Compile Include="Settings\ModelSettings.cs" />
+    <Compile Include="Settings\CurrentModel.cs" />
     <Compile Include="Settings\PersistentSettings.cs" />
     <Compile Include="Settings\WFButtons.cs" />
     <Compile Include="Commands\ActivateDeactivate.cs" />

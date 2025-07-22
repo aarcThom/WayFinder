@@ -23,7 +23,7 @@ namespace WayFinder.Events
             }
 
             // Initialize the current model with saved or prompted active state and debug = False
-            ModelSettings.Instance.InitializeModel(modelName, docSavedSettings.Value, false);
+            //ModelSettings.Instance.InitializeModel(modelName, docSavedSettings.Value, false);
 
             // set the active state for the buttons
             WFButtons.Instance.ActivateDeactivateButtons(docSavedSettings.Value);
