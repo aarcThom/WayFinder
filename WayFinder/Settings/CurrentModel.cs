@@ -17,9 +17,11 @@ namespace WayFinder.Settings
 
         // ========================================== FIELDS =====================================================================
         private bool _isActive;
+        private bool _isDebug = false;
 
         // ========================================= PROPERTIES ==================================================================
         public bool IsActive { get => _isActive; }
+        public bool IsDebug { get => _isDebug; set => _isDebug = value; }
 
 
         // ===================================== CONSTRUCTORS ====================================================================

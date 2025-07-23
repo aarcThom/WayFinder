@@ -87,17 +87,30 @@ namespace WayFinder.Settings
         // ===================================== METHODS ===========================================================================
         
         /// <summary>
-        /// Removes the model with the specified name from the collection.
+        /// Removes the specified model from the collection of open models.
         /// </summary>
-        /// <remarks>If the model with the specified name exists in the collection, it is removed.  Ensure
-        /// that any resources associated with the model are properly disposed of before calling this method.</remarks>
-        /// <param name="modelName">The name of the model to remove. Must not be null or empty.</param>
-        public void RemoveModel(string modelName)
+        /// <remarks>If the specified model is currently active, its status is updated in the persistent
+        /// settings. Additionally, if the model being removed is the current model, the current model reference is
+        /// cleared.</remarks>
+        /// <param name="modelToRemove">The name of the model to be removed. Must not be null or empty.</param>
+        public void RemoveModel(string modelToRemove)
         {
-            if (_openModels.ContainsKey(modelName))
+            
+            if (_openModels.ContainsKey(modelToRemove))
             {
-                // WILL NEED TO ENSURE THINGS ARE PROPERLY DISPOSED.
-                _openModels.Remove(modelName);
+                // update the persistant settings
+                bool modelStatus = _openModels[modelToRemove].IsActive;
+                PersistentSettings.Instance.SetSettings(modelToRemove, modelStatus);
+
+                // clear the current model if it's being closed
+                if (modelToRemove == _currentModelName)
+                {
+                    _currentModelName = null;
+                }
+
+                // remove it from the AppSettings dictionary
+                // WILL NEED TO ENSURE THINGS ARE PROPERLY DISPOSED. +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++!!!!!!!!!!!!!!!!!!!!
+                _openModels.Remove(modelToRemove);
             }
         }
 
@@ -164,7 +177,14 @@ namespace WayFinder.Settings
 
         public void test()
         {
-            TaskDialog.Show("cool", $"{_currentModelName} is {CurrentModel.IsActive}");
+            string test_text = string.Empty;
+
+            foreach (var item in _openModels.Keys)
+            {
+                test_text += $"{item}, ";
+            }
+
+            TaskDialog.Show("cool", $"{_currentModelName} is {CurrentModel.IsActive}. \n The open models are {test_text}.");
         }
     }
 }

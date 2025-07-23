@@ -23,8 +23,8 @@ namespace WayFinder
         // Instead of creating a new instance each OnDocumentChanged
         private static UIControlledApplication _controlledUIApp;
 
-        private static readonly BehaviorSubject<string> _currentModel = new BehaviorSubject<string>(null); // the current model
-        public static IObservable<string> CurrentModel => _currentModel; // allows behaviour to be subscribed to
+        private static readonly BehaviorSubject<string> _currentModelName = new BehaviorSubject<string>(null); // the current model
+        public static IObservable<string> CurrentModel => _currentModelName; // allows behaviour to be subscribed to
 
 
         public Result OnStartup(UIControlledApplication application)
@@ -80,18 +80,10 @@ namespace WayFinder
         /// </summary>
         private void OnDocumentClosing(object sender, DocumentClosingEventArgs args)
         {
-            //grab the currently open model just in case user closes without switching tabs
-            string prevFocus = _currentModel.Value;
+            // remove the model from the app settings
+            AppSettings.Instance.RemoveModel(args.Document.Title);
 
-            SetCurrentModel(model:args.Document); // Set the document to active
-            AppSettings.Instance.test(); // replace this with the dispose methods
-
-            // reset the current model if user closed model without switching tabs
-            if (prevFocus != _currentModel.Value)
-            {
-                SetCurrentModel(modelName:prevFocus);
-                AppSettings.Instance.test();
-            }
+            AppSettings.Instance.test();
 
         }
 
@@ -105,6 +97,7 @@ namespace WayFinder
 
         public Result OnShutdown(UIControlledApplication application)
         {
+            // 
             // ====================== UNSUBSCRIBE FROM EVENTS ========================================================================================
             _controlledUIApp.ControlledApplication.DocumentOpened -= OnDocumentOpened;
             _controlledUIApp.ControlledApplication.DocumentClosing -= OnDocumentClosing;
@@ -135,13 +128,13 @@ namespace WayFinder
 
             if (model != null)
             {
-                _currentModel.OnNext(model.Title);
+                _currentModelName.OnNext(model.Title);
                 return;
             }
 
             if (modelName != null)
             {
-                _currentModel.OnNext(modelName);
+                _currentModelName.OnNext(modelName);
             }
             
         }
