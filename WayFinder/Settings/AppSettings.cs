@@ -12,7 +12,13 @@ using WayFinder.RevitObjects;
 
 namespace WayFinder.Settings
 {
-
+    /// <summary>
+    /// Provides application-wide settings and manages the state of models within the application.
+    /// </summary>
+    /// <remarks>The <see cref="AppSettings"/> class implements the singleton pattern to ensure a single
+    /// instance is used throughout the application. It manages the settings for models, including their active status,
+    /// and provides access to the currently focused model. The class also handles subscription to model changes and
+    /// updates the application state accordingly.</remarks>
     public sealed class AppSettings
     {
 
@@ -24,8 +30,8 @@ namespace WayFinder.Settings
         // readonly ensures that _instance can only be assigned a value once. After the initial declaration, it cant be changed.
         private static readonly AppSettings _instance = new AppSettings();
 
-        private readonly IDisposable _focusedModelSubscribe; // the subscription to the ModelSettings
-        private string _currentModel; // the currently focused model
+        private readonly IDisposable _currentModelSubscribe; // the subscription to the ModelSettings
+        private string _currentModelName; // the currently focused model
 
         // the dictionary that holds all the model settings
         private Dictionary<string, CurrentModel> _openModels = new Dictionary<string, CurrentModel>();
@@ -35,7 +41,7 @@ namespace WayFinder.Settings
         public static AppSettings Instance => _instance;
 
         // retrieves the model settings of the currently focused model
-        public CurrentModel CurrentModel => _openModels[_currentModel];
+        public CurrentModel CurrentModel => _openModels[_currentModelName];
 
         // ===================================== CONSTRUCTORS ====================================================================
 
@@ -51,14 +57,30 @@ namespace WayFinder.Settings
         private AppSettings()
         {
             // subscribe to the currently focused model
-            _focusedModelSubscribe = App.FocusedModel.Subscribe(currentModel =>
+            _currentModelSubscribe = App.CurrentModel.Subscribe(currentModel =>
             {
-                _currentModel = currentModel;
 
-                if (_currentModel != null && !_openModels.ContainsKey(_currentModel))
-                {
-                    _openModels[_currentModel] = new CurrentModel();
+                // this will happen the first time the instance is initialized
+                // before a document is opened
+                if (currentModel == null) 
+                { 
+                    return; 
                 }
+
+                _currentModelName = currentModel;
+
+                // if it is a newly opened document
+                if (_currentModelName != null && !_openModels.ContainsKey(_currentModelName))
+                {
+                    // check if it's in persistent settings and get active status
+                    bool activeStatus = CheckSettings(_currentModelName);
+
+                    // add the current model to the dictionary
+                    _openModels[_currentModelName] = new CurrentModel(activeStatus);
+                }
+
+                // activate or deactivate the ribbon panel
+                WFButtons.Instance.ActivateDeactivateButtons(CurrentModel.IsActive);
             });
         }
 
@@ -79,15 +101,70 @@ namespace WayFinder.Settings
             }
         }
 
-        public void test()
+        /// <summary>
+        /// Releases the resources used by the current instance of the class.
+        /// </summary>
+        /// <remarks>This method should be called when the instance is no longer needed to free up
+        /// resources. It is safe to call this method multiple times.</remarks>
+        public void Dispose()
         {
-            string test = "";
-            foreach(string key in _openModels.Keys)
+            if (_currentModelSubscribe != null)
             {
-                test += $"{key}, ";
+                _currentModelSubscribe.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Checks if the specified model is configured in the persistent settings.
+        /// </summary>
+        /// <remarks>If the model is not found in the persistent settings, the method prompts the user to
+        /// add it.</remarks>
+        /// <param name="modelName">The name of the model to check in the settings.</param>
+        /// <returns>true if the model is set to active in the settings;  false if the application is not working or the
+        /// model is set to not-active in the settings. </returns>
+        private static bool CheckSettings(string modelName)
+        {
+            // there was an error in activating the app
+            if (!PersistentSettings.Instance.AppWorking)
+            {
+                TaskDialog.Show("Error", "WayFinder is not working. Couldn't add document to settings.");
+                return false;
             }
 
-            TaskDialog.Show("cool", $"Models: {test}");
+            // see if the opened model is saved in persistent settings
+            bool? docSavedSettings = PersistentSettings.Instance.GetSettings(modelName);
+
+            if (!docSavedSettings.HasValue) // the current model doesn't have an entry in the persistant settings
+            {
+                // prompt user for settings and set them
+                return AddModelToSettings(modelName);
+            }
+
+            return docSavedSettings.Value;
+        }
+
+        /// <summary>
+        /// Adds a model to the settings with a user-defined active state.
+        /// </summary>
+        /// <remarks>This method prompts the user to decide whether the model should be enabled by
+        /// default.  The user's choice is saved in the persistent settings and can be modified later.</remarks>
+        /// <param name="modelName">The name of the model to be added to the settings. Cannot be null or empty.</param>
+        /// <returns><see langword="true"/> if the model is set to be active by default; otherwise, <see langword="false"/>. </returns>
+        private static bool AddModelToSettings(string modelName)
+        {
+            // prompt the user
+            bool defaultActiveState = Helpers.UI.BoolFromYesNoDialog("WayFinder", "Would you like to enable WayFinder for this model? \n" +
+                "You may change this setting later with the 'Enable/Disable' button.");
+
+            // write default settings to JSON file
+            PersistentSettings.Instance.SetSettings(modelName, defaultActiveState);
+
+            return defaultActiveState;
+        }
+
+        public void test()
+        {
+            TaskDialog.Show("cool", $"{_currentModelName} is {CurrentModel.IsActive}");
         }
     }
 }

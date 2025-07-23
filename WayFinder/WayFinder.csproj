@@ -98,7 +98,6 @@
     <Compile Include="Commands\UpdateSignInfo.cs" />
     <Compile Include="Commands\WFCommand.cs" />
     <Compile Include="Events\OnOpenApp.cs" />
-    <Compile Include="Events\OnOpenDoc.cs" />
     <Compile Include="Helpers\UI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\ResourceUtils.cs" />

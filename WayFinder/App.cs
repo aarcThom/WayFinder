@@ -23,8 +23,8 @@ namespace WayFinder
         // Instead of creating a new instance each OnDocumentChanged
         private static UIControlledApplication _controlledUIApp;
 
-        private static readonly BehaviorSubject<string> _focusedModel = new BehaviorSubject<string>(null); // the current model
-        public static IObservable<string> FocusedModel => _focusedModel; // allows behaviour to be subscribed to
+        private static readonly BehaviorSubject<string> _currentModel = new BehaviorSubject<string>(null); // the current model
+        public static IObservable<string> CurrentModel => _currentModel; // allows behaviour to be subscribed to
 
 
         public Result OnStartup(UIControlledApplication application)
@@ -81,13 +81,13 @@ namespace WayFinder
         private void OnDocumentClosing(object sender, DocumentClosingEventArgs args)
         {
             //grab the currently open model just in case user closes without switching tabs
-            string prevFocus = _focusedModel.Value;
+            string prevFocus = _currentModel.Value;
 
             SetCurrentModel(model:args.Document); // Set the document to active
             AppSettings.Instance.test(); // replace this with the dispose methods
 
             // reset the current model if user closed model without switching tabs
-            if (prevFocus != _focusedModel.Value)
+            if (prevFocus != _currentModel.Value)
             {
                 SetCurrentModel(modelName:prevFocus);
                 AppSettings.Instance.test();
@@ -135,13 +135,13 @@ namespace WayFinder
 
             if (model != null)
             {
-                _focusedModel.OnNext(model.Title);
+                _currentModel.OnNext(model.Title);
                 return;
             }
 
             if (modelName != null)
             {
-                _focusedModel.OnNext(modelName);
+                _currentModel.OnNext(modelName);
             }
             
         }
