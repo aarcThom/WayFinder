@@ -32,5 +32,14 @@ namespace WayFinder.Settings
 
         // =====================================METHODS===========================================================================
        
+        /// <summary>
+        /// Toggles the active state of the settings.
+        /// </summary>
+        /// <remarks>This method switches the current active state between active and inactive.  It is
+        /// useful for enabling or disabling settings based on the current state.</remarks>
+        public void ToggleActiveSettings()
+        {
+            _isActive = !_isActive;
+        }
     }
 }

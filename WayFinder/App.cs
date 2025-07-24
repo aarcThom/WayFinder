@@ -49,7 +49,7 @@ namespace WayFinder
                 _controlledUIApp.ControlledApplication.DocumentClosed += OnDocumentClosed;
                 _controlledUIApp.ViewActivated += OnViewActivated;
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 return Result.Failed;
             }

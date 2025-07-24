@@ -21,9 +21,7 @@ namespace WayFinder.Commands
     {
         protected override Result ExecuteCommand(UIApplication uiApp, UIDocument uiDoc, Document doc, Application app, ref string message, ElementSet elements)
         {
-            string docTitle = doc.Title;
-
-
+            AppSettings.Instance.ToggleModelActiveSetting();
             return Result.Succeeded;
         }
     }

@@ -73,7 +73,7 @@ namespace WayFinder.Settings
                 if (_currentModelName != null && !_openModels.ContainsKey(_currentModelName))
                 {
                     // check if it's in persistent settings and get active status
-                    bool activeStatus = CheckSettings(_currentModelName);
+                    bool activeStatus = CheckPersistentSettings(_currentModelName);
 
                     // add the current model to the dictionary
                     _openModels[_currentModelName] = new CurrentModel(activeStatus);
@@ -86,6 +86,21 @@ namespace WayFinder.Settings
 
         // ===================================== METHODS ===========================================================================
         
+        /// <summary>
+        /// Toggles the active setting of the current model.
+        /// </summary>
+        /// <remarks>This method changes the active state of the current model and updates the UI
+        /// accordingly.</remarks>
+        public void ToggleModelActiveSetting()
+        {
+            // toggle the active setting of current model
+            _openModels[_currentModelName].ToggleActiveSettings();
+
+            // activate or deactivate the ribbon panel
+            WFButtons.Instance.ActivateDeactivateButtons(CurrentModel.IsActive);
+        }
+
+
         /// <summary>
         /// Removes the specified model from the collection of open models.
         /// </summary>
@@ -135,7 +150,7 @@ namespace WayFinder.Settings
         /// <param name="modelName">The name of the model to check in the settings.</param>
         /// <returns>true if the model is set to active in the settings;  false if the application is not working or the
         /// model is set to not-active in the settings. </returns>
-        private static bool CheckSettings(string modelName)
+        private static bool CheckPersistentSettings(string modelName)
         {
             // there was an error in activating the app
             if (!PersistentSettings.Instance.AppWorking)
