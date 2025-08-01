@@ -90,6 +90,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
+    <Compile Include="Commands\SetDebugStatus.cs" />
     <Compile Include="Settings\AppSettings.cs" />
     <Compile Include="Settings\CurrentModel.cs" />
     <Compile Include="Settings\PersistentSettings.cs" />

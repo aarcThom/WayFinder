@@ -17,11 +17,13 @@ namespace WayFinder.Settings
 
         // ========================================== FIELDS =====================================================================
         private bool _isActive;
-        private bool _isDebug = false;
+
+        private static readonly BehaviorSubject<bool> _debugStatus = new BehaviorSubject<bool>(false);
+        
 
         // ========================================= PROPERTIES ==================================================================
         public bool IsActive { get => _isActive; }
-        public bool IsDebug { get => _isDebug; set => _isDebug = value; }
+        public static IObservable<bool> DebugStatus => _debugStatus; // allows behaviour to be subscribed to
 
 
         // ===================================== CONSTRUCTORS ====================================================================
@@ -31,7 +33,19 @@ namespace WayFinder.Settings
         }
 
         // =====================================METHODS===========================================================================
-       
+        
+        /// <summary>
+        /// Toggles the current debug status between enabled and disabled.
+        /// </summary>
+        /// <remarks>This method switches the debug status to its opposite state. If the debug status is
+        /// currently enabled,  it will be disabled, and vice versa. The change is propagated to all subscribers of the
+        /// debug status.</remarks>
+        public void ToggleDebugStatus()
+        {
+            bool prevStatus = _debugStatus.Value;
+            _debugStatus.OnNext(!prevStatus);
+        }
+
         /// <summary>
         /// Toggles the active state of the settings.
         /// </summary>

@@ -34,6 +34,15 @@ namespace WayFinder.Settings
                 {"toolTip", "Enable or Disable WayFarer"},
                 {"iconPath", "WayFinder.Resources.Icons.updateSign_32.png" }
             },
+            // TOGGLE MODEL DEBUG STATUS
+            new Dictionary<string, string>()
+            {
+                {"uiName" , "Toggle Debug State"},
+                {"uiText" , "Enable or Disable Current Model's Debug State"},
+                {"className" , "SetDebugState"},
+                {"toolTip", "Enable or Disable Current Model's Debug State"},
+                {"iconPath", "WayFinder.Resources.Icons.updateSign_32.png" }
+            },
             // Manually update the sign info
             new Dictionary<string, string>()
             {

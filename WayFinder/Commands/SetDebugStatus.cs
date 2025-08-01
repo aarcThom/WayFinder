@@ -17,11 +17,11 @@ namespace WayFinder.Commands
     [Transaction(TransactionMode.Manual)]
 
     [Regeneration(RegenerationOption.Manual)]
-    public class ActivateDeactivate : WFCommand
+    public class SetDebugStatus : WFCommand
     {
         protected override Result ExecuteCommand(UIApplication uiApp, UIDocument uiDoc, Document doc, Application app, ref string message, ElementSet elements)
         {
-            AppSettings.Instance.ToggleModelActiveStatus();
+            AppSettings.Instance.ToggleModelDebugStatus();
             return Result.Succeeded;
         }
     }

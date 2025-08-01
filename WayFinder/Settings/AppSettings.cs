@@ -87,11 +87,23 @@ namespace WayFinder.Settings
         // ===================================== METHODS ===========================================================================
         
         /// <summary>
+        /// Toggles the debug status of the currently active model. 
+        /// </summary>
+        /// <remarks>This method switches the debug status of the model identified by the current model
+        /// name. The specific behavior of toggling the debug status is determined by the model
+        /// implementation.</remarks>
+        public void ToggleModelDebugStatus()
+        {
+            // toggle the debug status of the current model
+            _openModels[_currentModelName].ToggleDebugStatus();
+        }
+
+        /// <summary>
         /// Toggles the active setting of the current model.
         /// </summary>
         /// <remarks>This method changes the active state of the current model and updates the UI
         /// accordingly.</remarks>
-        public void ToggleModelActiveSetting()
+        public void ToggleModelActiveStatus()
         {
             // toggle the active setting of current model
             _openModels[_currentModelName].ToggleActiveSettings();
@@ -199,7 +211,7 @@ namespace WayFinder.Settings
                 test_text += $"{item}, ";
             }
 
-            TaskDialog.Show("cool", $"{_currentModelName} is {CurrentModel.IsActive}. \n The open models are {test_text}.");
+            TaskDialog.Show("cool", $"{_currentModelName} is {CurrentModel.DebugStatus}. \n The open models are {test_text}.");
         }
     }
 }
