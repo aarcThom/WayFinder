@@ -91,8 +91,10 @@
   <ItemGroup>
     <Compile Include="App.cs" />
     <Compile Include="Commands\SetDebugStatus.cs" />
+    <Compile Include="Helpers\FileHelpers.cs" />
     <Compile Include="Settings\AppSettings.cs" />
     <Compile Include="Settings\CurrentModel.cs" />
+    <Compile Include="Settings\FamilySettings.cs" />
     <Compile Include="Settings\PersistentSettings.cs" />
     <Compile Include="Settings\WFButtons.cs" />
     <Compile Include="Commands\ActivateDeactivate.cs" />
@@ -103,7 +105,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\ResourceUtils.cs" />
     <Compile Include="RevitObjects\WallSign.cs" />
-    <Compile Include="RevitObjects\ModelSigns.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
